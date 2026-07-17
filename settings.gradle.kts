@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "FrAnimeExtension"
-include(":src:eu:kanade:tachiyomi:animeextension:fr:franime")
+include(":franime")

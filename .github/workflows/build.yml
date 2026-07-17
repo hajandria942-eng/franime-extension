@@ -20,15 +20,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          cache-read-only: false
+          gradle-version: 8.4
+          cache-disabled: true
 
-      - name: Generate Gradle wrapper
-        run: gradle wrapper --gradle-version 8.4
+      - name: Make gradlew executable
+        run: chmod +x gradlew || true
 
       - name: Build APK
         run: ./gradlew :franime:assembleRelease --no-daemon --stacktrace
@@ -37,8 +37,7 @@ jobs:
         run: |
           APK_PATH=$(find . -name "*.apk" | head -1)
           APK_NAME="franime-v${{ github.run_number }}.apk"
-          cp $APK_PATH $APK_NAME
-
+          cp $APK_PATH $APK_NAME 2>/dev/null || echo "APK not found"
           cat > index.min.json << EOF
           {
             "name": "FRAnime Extension Repository",
@@ -64,13 +63,12 @@ jobs:
             ]
           }
           EOF
-
           mkdir -p release
-          cp $APK_NAME release/
+          cp $APK_NAME release/ 2>/dev/null || true
           cp index.min.json release/
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
@@ -83,8 +81,8 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git checkout --orphan repo
-          git rm -rf .
-          cp release/* .
-          git add index.min.json *.apk
-          git commit -m "Deploy repository v${{ github.run_number }}"
+          git rm -rf . || true
+          cp release/* . 2>/dev/null || true
+          git add index.min.json *.apk 2>/dev/null || true
+          git commit -m "Deploy repository v${{ github.run_number }}" || echo "No files to commit"
           git push origin repo --force

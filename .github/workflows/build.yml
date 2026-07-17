@@ -20,15 +20,18 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Generate Gradle wrapper
         run: gradle wrapper --gradle-version 8.4
 
       - name: Build APK
-        run: ./gradlew :franime:assembleRelease --no-daemon
+        run: ./gradlew :franime:assembleRelease --no-daemon --stacktrace
 
       - name: Prepare APK and index
         run: |
@@ -67,7 +70,7 @@ jobs:
           cp index.min.json release/
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
@@ -80,7 +83,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git checkout --orphan repo
-          git rm -rf . --ignore-unmatch
+          git rm -rf .
           cp release/* .
           git add index.min.json *.apk
           git commit -m "Deploy repository v${{ github.run_number }}"

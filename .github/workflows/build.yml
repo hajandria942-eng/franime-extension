@@ -24,11 +24,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.4
-          cache-disabled: true
+          gradle-version: '8.4'
 
       - name: Make gradlew executable
-        run: chmod +x gradlew || true
+        run: chmod +x gradlew
 
       - name: Build APK
         run: ./gradlew :franime:assembleRelease --no-daemon --stacktrace
@@ -37,7 +36,8 @@ jobs:
         run: |
           APK_PATH=$(find . -name "*.apk" | head -1)
           APK_NAME="franime-v${{ github.run_number }}.apk"
-          cp $APK_PATH $APK_NAME 2>/dev/null || echo "APK not found"
+          cp $APK_PATH $APK_NAME
+
           cat > index.min.json << EOF
           {
             "name": "FRAnime Extension Repository",
@@ -63,8 +63,9 @@ jobs:
             ]
           }
           EOF
+
           mkdir -p release
-          cp $APK_NAME release/ 2>/dev/null || true
+          cp $APK_NAME release/
           cp index.min.json release/
 
       - name: Upload Release
@@ -81,8 +82,8 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git checkout --orphan repo
-          git rm -rf . || true
-          cp release/* . 2>/dev/null || true
-          git add index.min.json *.apk 2>/dev/null || true
-          git commit -m "Deploy repository v${{ github.run_number }}" || echo "No files to commit"
+          git rm -rf .
+          cp release/* .
+          git add index.min.json *.apk
+          git commit -m "Deploy repository v${{ github.run_number }}"
           git push origin repo --force

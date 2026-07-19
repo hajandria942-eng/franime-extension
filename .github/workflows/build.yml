@@ -36,6 +36,9 @@ jobs:
           cache-disabled: true
           validate-wrappers: false
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Build APK
         run: ./gradlew :franime:assembleRelease --no-daemon --stacktrace
 

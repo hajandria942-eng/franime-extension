@@ -44,6 +44,6 @@ dependencies {
     compileOnly("com.github.jmir1:aniyomi-lib-vkextractor:1.0.0")
     
     // Utilities
-    implementation("com.github.Keiyoushi:keiyoushi-utils:1.0.0")
+    // Keiyoushi removed to fix JitPack 401
     implementation("uy.kohesive.injekt:injekt-core:1.16.1")
 }

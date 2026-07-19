@@ -21,7 +21,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle (system)
+      - name: Install Android SDK 34
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.4'
@@ -29,13 +36,13 @@ jobs:
           validate-wrappers: false
 
       - name: Build APK
-        run: gradle :franime:assembleRelease --no-daemon --stacktrace
+        run: ./gradlew :franime:assembleRelease --no-daemon --stacktrace
 
       - name: Prepare APK and index
         run: |
           APK_PATH=$(find . -name "*.apk" | head -1)
           APK_NAME="franime-v${{ github.run_number }}.apk"
-          cp $APK_PATH $APK_NAME 2>/dev/null || echo "APK not found"
+          cp "$APK_PATH" "$APK_NAME" 2>/dev/null || echo "APK not found"
           cat > index.min.json << EOF
           {
             "name": "FRAnime Extension Repository",
@@ -62,7 +69,7 @@ jobs:
           }
           EOF
           mkdir -p release
-          cp $APK_NAME release/ 2>/dev/null || true
+          cp "$APK_NAME" release/ 2>/dev/null || true
           cp index.min.json release/
 
       - name: Upload Release
